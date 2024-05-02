@@ -1,0 +1,22 @@
+providers:
+  - CUDAExecutionProvider
+  - CPUExecutionProvider
+
+models:
+  insightface_path: ./checkpoints
+  face_detection_model:
+    name: retinaface_resnet50
+    path: ./checkpoints/detection_Resnet50_Final.pth
+  face_swap_model:
+    name: inswapper_128
+    path: ./checkpoints/inswapper_128.onnx
+  face_restoration_model:
+    name: codeformer
+    path: ./checkpoints/codeformer.pth
+  face_parse_model:
+    name: parsenet
+    path: ./checkpoints/parsing_parsenet.pth
+
+params:
+  face_restore_visibility: 1.0
+  codeformer_weight: 0.5
