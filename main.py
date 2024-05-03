@@ -24,6 +24,6 @@ if __name__ == '__main__':
     input_image_path = '/home/sm00th/Projects/upwork/dayo/src/portrait6_1024.jpg'
     # source_image_path = '/home/sm00th/Projects/upwork/dayo/src/portrait10.png'
 
-    reactor = FaceSwapper('./config.yml')
+    fsw = FaceSwapper('./config.yml')
 
-    reactor.execute(input_image_path=input_image_path, source_image_path=source_image_path)
+    fsw.execute(input_image_path=input_image_path, source_image_path=source_image_path)
