@@ -20,10 +20,10 @@ class FaceSwapper:
         return swapped
 
 if __name__ == '__main__':
-    source_image_path = '/home/sm00th/Projects/upwork/dayo/src/woman_6_1024.jpg'
-    input_image_path = '/home/sm00th/Projects/upwork/dayo/src/portrait6_1024.jpg'
-    # source_image_path = '/home/sm00th/Projects/upwork/dayo/src/portrait10.png'
+    source_image_path = './test_imgs/w_01.png'
+    input_image_path = './test_imgs/w_02.png'
 
     fsw = FaceSwapper('./config.yml')
 
-    fsw.execute(input_image_path=input_image_path, source_image_path=source_image_path)
+    swapped = fsw.do_swap(input_image_path=input_image_path, source_image_path=source_image_path)
+    swapped.show()
