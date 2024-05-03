@@ -19,25 +19,6 @@ from components.r_facelib.detection.retinaface_utils import (
     py_cpu_nms
 )
 
-#device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-if torch.cuda.is_available():
-    device = torch.device('cuda')
-elif torch.backends.mps.is_available():
-    device = torch.device('mps')
-# elif hasattr(torch,'dml'):
-#     device = torch.device('dml')
-elif hasattr(torch,'dml') or hasattr(torch,'privateuseone'): # AMD
-    if shared.cmd_opts is not None: # A1111
-        if shared.cmd_opts.device_id is not None:
-            device = torch.device(f'privateuseone:{shared.cmd_opts.device_id}')
-        else:
-            device = torch.device('privateuseone:0')
-    else:
-        device = torch.device('privateuseone:0')
-else:
-    device = torch.device('cpu')
-
-
 def generate_config(network_name):
 
     cfg_mnet = {
@@ -96,7 +77,7 @@ def generate_config(network_name):
 
 class RetinaFace(nn.Module):
 
-    def __init__(self, network_name='resnet50', half=False, phase='test'):
+    def __init__(self, device, network_name='resnet50', half=False, phase='test'):
         super(RetinaFace, self).__init__()
         self.half_inference = half
         cfg = generate_config(network_name)
@@ -104,10 +85,11 @@ class RetinaFace(nn.Module):
 
         self.model_name = f'retinaface_{network_name}'
         self.cfg = cfg
+        self.device = device
         self.phase = phase
         self.target_size, self.max_size = 1600, 2150
         self.resize, self.scale, self.scale1 = 1., None, None
-        self.mean_tensor = torch.tensor([[[[104.]], [[117.]], [[123.]]]]).to(device)
+        self.mean_tensor = torch.tensor([[[[104.]], [[117.]], [[123.]]]]).to(self.device)
         self.reference = get_reference_facial_points(default_square=True)
         # Build network.
         backbone = None
@@ -136,13 +118,13 @@ class RetinaFace(nn.Module):
         self.BboxHead = make_bbox_head(fpn_num=3, inchannels=cfg['out_channel'])
         self.LandmarkHead = make_landmark_head(fpn_num=3, inchannels=cfg['out_channel'])
 
-        self.to(device)
+        self.to(self.device)
         self.eval()
         if self.half_inference:
             self.half()
 
     def forward(self, inputs):
-        self.to(device)
+        self.to(self.device)
         out = self.body(inputs)
 
         if self.backbone == 'mobilenet0.25' or self.backbone == 'Resnet50':
@@ -170,19 +152,19 @@ class RetinaFace(nn.Module):
     def __detect_faces(self, inputs):
         # get scale
         height, width = inputs.shape[2:]
-        self.scale = torch.tensor([width, height, width, height], dtype=torch.float32).to(device)
+        self.scale = torch.tensor([width, height, width, height], dtype=torch.float32).to(self.device)
         tmp = [width, height, width, height, width, height, width, height, width, height]
-        self.scale1 = torch.tensor(tmp, dtype=torch.float32).to(device)
+        self.scale1 = torch.tensor(tmp, dtype=torch.float32).to(self.device)
 
         # forawrd
-        inputs = inputs.to(device)
+        inputs = inputs.to(self.device)
         if self.half_inference:
             inputs = inputs.half()
         loc, conf, landmarks = self(inputs)
 
         # get priorbox
         priorbox = PriorBox(self.cfg, image_size=inputs.shape[2:])
-        priors = priorbox.forward().to(device)
+        priors = priorbox.forward().to(self.device)
 
         return loc, conf, landmarks, priors
 
@@ -226,7 +208,7 @@ class RetinaFace(nn.Module):
             imgs: BGR image
         """
         image, self.resize = self.transform(image, use_origin_size)
-        image = image.to(device)
+        image = image.to(self.device)
         if self.half_inference:
             image = image.half()
         image = image - self.mean_tensor
@@ -255,10 +237,7 @@ class RetinaFace(nn.Module):
         bounding_boxes = np.hstack((boxes, scores[:, np.newaxis])).astype(np.float32, copy=False)
         keep = py_cpu_nms(bounding_boxes, nms_threshold)
         bounding_boxes, landmarks = bounding_boxes[keep, :], landmarks[keep]
-        # self.t['forward_pass'].toc()
-        # print(self.t['forward_pass'].average_time)
-        # import sys
-        # sys.stdout.flush()
+
         return np.concatenate((bounding_boxes, landmarks), axis=1)
 
     def __align_multi(self, image, boxes, landmarks, limit=None):
@@ -345,7 +324,7 @@ class RetinaFace(nn.Module):
         """
         # self.t['forward_pass'].tic()
         frames, self.resize = self.batched_transform(frames, use_origin_size)
-        frames = frames.to(device)
+        frames = frames.to(self.device)
         frames = frames - self.mean_tensor
 
         b_loc, b_conf, b_landmarks, priors = self.__detect_faces(frames)
@@ -387,9 +366,5 @@ class RetinaFace(nn.Module):
             # append
             final_bounding_boxes.append(bounding_boxes)
             final_landmarks.append(landmarks)
-        # self.t['forward_pass'].toc(average=True)
-        # self.batch_time += self.t['forward_pass'].diff
-        # self.total_frame += len(frames)
-        # print(self.batch_time / self.total_frame)
 
         return final_bounding_boxes, final_landmarks

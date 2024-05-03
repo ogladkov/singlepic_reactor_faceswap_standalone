@@ -5,12 +5,13 @@ import torch
 from .retinaface import RetinaFace
 
 
-def init_detection_model(cfg, half=False, device='cuda'):
+def init_detection_model(cfg, half=False, device='cpu'):
     return init_retinaface_model(cfg, half, device)
 
 
 def init_retinaface_model(cfg, half=False, device='cuda'):
-    model = RetinaFace(network_name='resnet50', half=half)
+    device = 'cuda' if 'CUDAExecutionProvider' in cfg.providers else 'cpu'
+    model = RetinaFace(device, network_name='resnet50', half=half)
     load_net = torch.load(cfg.models.face_detection_model.path, map_location=lambda storage, loc: storage)
 
     # remove unnecessary 'module.'

@@ -107,7 +107,7 @@ class FaceSwapScript:
     ) -> np.ndarray:
         result = input_image
         model_path = self.cfg.models.face_restoration_model.path
-        device = 'cpu'
+        device = 'cuda' if 'CUDAExecutionProvider' in self.cfg.providers else 'cpu'
 
         codeformer_net = ARCH_REGISTRY.get("CodeFormer")(
             dim_embd=512,

@@ -95,10 +95,12 @@ class FaceRestoreHelper(object):
         self.restored_faces = []
         self.pad_input_imgs = []
 
-        if device is None:
-            self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        else:
-            self.device = device
+        # if device is None:
+        #     self.device = torch.device('cpu' if torch.cuda.is_available() else 'cpu')
+        # else:
+        #     self.device = device
+
+        self.device = 'cuda' if 'CUDAExecutionProvider' in self.cfg.providers else 'cpu'
 
         # init face detection model
         self.face_det = init_detection_model(self.cfg, half=False, device=self.device)
