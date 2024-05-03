@@ -29,7 +29,7 @@ class FaceSwapScript:
         result = self.swap_face(
             source_img=self.source_img,
             target_img=self.input_img,
-            swap_model=self.cfg['models']['face_swap_model']
+            swap_model=self.cfg.models.face_swap_model
         )
 
         return Image.fromarray(result)
@@ -70,8 +70,8 @@ class FaceSwapScript:
                 return result_image
 
             face_swapper = insightface.model_zoo.get_model(
-                self.cfg['models']['face_swap_model']['path'],
-                providers=self.cfg['providers']
+                self.cfg.models.face_swap_model.path,
+                providers=self.cfg.providers
             )
             swapped = face_swapper.get(target_img, target_faces[0], source_faces[0])
             swapped = cv2.cvtColor(swapped, cv2.COLOR_BGR2RGB)
@@ -79,8 +79,8 @@ class FaceSwapScript:
             # Face restoration
             restored = self.restore_face(
                 input_image=swapped,
-                face_restore_visibility=self.cfg['params']['face_restore_visibility'],
-                codeformer_weight=self.cfg['params']['codeformer_weight']
+                face_restore_visibility=self.cfg.params.face_restore_visibility,
+                codeformer_weight=self.cfg.params.codeformer_weight
             )
 
             return restored
@@ -94,7 +94,7 @@ class FaceSwapScript:
     def getAnalysisModel(self) -> FaceAnalysis:
         analysis_model = insightface.app.FaceAnalysis(
             name="buffalo_l",
-            providers=self.cfg['providers'],
+            providers=self.cfg.providers,
             root=self.cfg.models.insightface.home
         )
         return analysis_model
@@ -106,7 +106,7 @@ class FaceSwapScript:
             codeformer_weight: float,
     ) -> np.ndarray:
         result = input_image
-        model_path = self.cfg['models']['face_restoration_model']['path']
+        model_path = self.cfg.models.face_restoration_model.path
         device = 'cpu'
 
         codeformer_net = ARCH_REGISTRY.get("CodeFormer")(
