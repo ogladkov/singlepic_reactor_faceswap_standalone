@@ -13,9 +13,14 @@
   - codeformer_weight: strength of CodeFormer (minimum -> closer to input face, maximum -> closer to swap face)
 
 ## Running
+### In code
 * Import FaceSwapper class from main.py to your code
 * Feed the instance with a config.yml path
 * Execute *do_swap* method
+
+### Standalone
+* Run `python main.py --source_image_path <SOURCE_IMAGE> --input_image_path <DESTINATION_IMAGE>`
+* You can also use --config flag to specify a path to the config file
 
 ## Example
 ```python

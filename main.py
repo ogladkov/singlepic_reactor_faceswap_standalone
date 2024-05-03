@@ -1,3 +1,5 @@
+import argparse
+
 from omegaconf import OmegaConf
 from PIL import Image
 
@@ -19,11 +21,18 @@ class FaceSwapper:
 
         return swapped
 
-if __name__ == '__main__':
-    source_image_path = './test_imgs/w_01.png'
-    input_image_path = './test_imgs/w_02.png'
 
-    fsw = FaceSwapper('./config.yml')
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--input', help='Input image (destination) path', required=True, default='./test_imgs/w_01.png')
+    parser.add_argument('--source', help='Source image path', required=True, default='./test_imgs/w_01.png')
+    parser.add_argument('--config', help='Input file path', required=False, default='./config.yml')
+    args = parser.parse_args()
 
-    swapped = fsw.do_swap(input_image_path=input_image_path, source_image_path=source_image_path)
+    fsw = FaceSwapper(args.config)
+    swapped = fsw.do_swap(input_image_path=args.input, source_image_path=args.source)
     swapped.show()
+
+
+if __name__ == '__main__':
+    main()
