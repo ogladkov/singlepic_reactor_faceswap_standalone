@@ -95,7 +95,7 @@ class FaceSwapScript:
         analysis_model = insightface.app.FaceAnalysis(
             name="buffalo_l",
             providers=self.cfg['providers'],
-            root=self.cfg['models']['insightface_path']
+            root=self.cfg.models.insightface.home
         )
         return analysis_model
 

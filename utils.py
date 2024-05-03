@@ -1,11 +1,15 @@
 import hashlib
 import math
+import os
+import sys
 
 import cv2
 import numpy as np
 from PIL import Image
 import torch
 from torchvision.utils import make_grid
+import wget
+import zipfile
 
 
 def tensor_to_pil(img_tensor, batch_index=0):
@@ -77,3 +81,55 @@ def tensor2img(tensor, rgb2bgr=True, out_type=np.uint8, min_max=(0, 1)):
     if len(result) == 1:
         result = result[0]
     return result
+
+
+def download_ckpts(cfg):
+
+    def bar_progress(current, total, width=80):
+        progress_message = "Downloading: %d%% [%d / %d] bytes" % (current / total * 100, current, total)
+        sys.stdout.write("\r" + progress_message)
+        sys.stdout.flush()
+
+    os.makedirs(cfg.models.ckpts_dir, exist_ok=True)
+
+    try:
+
+        if not os.path.exists(cfg.models.face_restoration_model.path):
+            print('Downloading face restoration model...')
+            wget.download(cfg.models.face_restoration_model.link, cfg.models.ckpts_dir, bar=bar_progress)
+        print('\nRestoration model is read\n')
+
+        buffalo_l_dir = os.path.join(cfg.models.insightface.home, 'models')
+
+        if not os.path.exists(buffalo_l_dir):
+            os.makedirs(buffalo_l_dir, exist_ok=True)
+            print('Downloading Insightface models...')
+            wget.download(cfg.models.insightface.link, buffalo_l_dir, bar=bar_progress)
+
+        buffalo_l_zip = os.path.join(buffalo_l_dir, 'buffalo_l.zip')
+        if os.path.exists(buffalo_l_zip):
+
+            with zipfile.ZipFile(buffalo_l_zip, 'r') as zip_ref:
+                buffalo_l_dir_out = os.path.join(buffalo_l_dir, 'buffalo_l')
+                zip_ref.extractall(buffalo_l_dir_out)
+
+            os.remove(buffalo_l_zip)
+        print('\nInsightface model is read\n')
+
+        if not os.path.exists(cfg.models.face_detection_model.path):
+            print('Downloading face detection model...')
+            wget.download(cfg.models.face_detection_model.link, cfg.models.ckpts_dir, bar=bar_progress)
+        print('\nDetection model is read\n')
+
+        if not os.path.exists(cfg.models.face_parse_model.path):
+            print('Downloading face parsing model...')
+            wget.download(cfg.models.face_parse_model.link, cfg.models.ckpts_dir, bar=bar_progress)
+        print('\nFace parsing model is read\n')
+
+        if not os.path.exists(cfg.models.face_swap_model.path):
+            print('Downloading face swap model...')
+            wget.download(cfg.models.face_swap_model.link, cfg.models.ckpts_dir, bar=bar_progress)
+        print('\nFaceswap model is read\n')
+
+    except Exception as e:
+        print(f'An error appeared: {e}')

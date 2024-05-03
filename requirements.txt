@@ -3,3 +3,4 @@ insightface==0.7.1
 omegaconf==2.3.0
 onnxruntime-gpu==1.17.1
 pillow==10.3.0
+wget==3.2
