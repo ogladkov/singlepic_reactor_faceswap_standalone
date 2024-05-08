@@ -6,11 +6,11 @@ import torch.nn.functional as F
 from PIL import Image
 from torchvision.models._utils import IntermediateLayerGetter as IntermediateLayerGetter
 
-from components.modules import shared
+from ...modules import shared
 
-from components.r_facelib.detection.align_trans import get_reference_facial_points, warp_and_crop_face
-from components.r_facelib.detection.retinaface_net import FPN, SSH, MobileNetV1, make_bbox_head, make_class_head, make_landmark_head
-from components.r_facelib.detection.retinaface_utils import (
+from ...r_facelib.detection.align_trans import get_reference_facial_points, warp_and_crop_face
+from ...r_facelib.detection.retinaface_net import FPN, SSH, MobileNetV1, make_bbox_head, make_class_head, make_landmark_head
+from ...r_facelib.detection.retinaface_utils import (
     PriorBox,
     batched_decode,
     batched_decode_landm,

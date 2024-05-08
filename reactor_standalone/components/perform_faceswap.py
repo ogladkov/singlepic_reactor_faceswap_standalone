@@ -10,10 +10,10 @@ from PIL import Image
 import torch
 from torchvision.transforms.functional import normalize
 
-from components.registry import ARCH_REGISTRY
-import components.r_archs.codeformer_arch  # noqa
-from components.r_facelib.utils.face_restoration_helper import FaceRestoreHelper
-from utils import img2tensor, tensor2img
+from .registry import ARCH_REGISTRY
+from .r_archs import codeformer_arch
+from .r_facelib.utils.face_restoration_helper import FaceRestoreHelper
+from ..utils import img2tensor, tensor2img
 
 
 class FaceSwapScript:

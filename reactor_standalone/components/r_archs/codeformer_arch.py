@@ -2,8 +2,8 @@ import math
 from torch import nn, Tensor
 from typing import Optional, List
 
-from components.r_archs.vqgan_arch import *
-from components.registry import ARCH_REGISTRY
+from ..r_archs.vqgan_arch import *
+from ..registry import ARCH_REGISTRY
 
 
 def calc_mean_std(feat, eps=1e-5):

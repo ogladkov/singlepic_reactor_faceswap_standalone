@@ -6,7 +6,7 @@ https://github.com/samb-t/unleashing-transformers/blob/master/models/vqgan.py
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from components.registry import ARCH_REGISTRY
+from ..registry import ARCH_REGISTRY
 
 
 def normalize(in_channels):
